@@ -1,0 +1,17 @@
+# Service systemd utilisateur : relais permanent du correcteur d'usage (tap/usage-shim.ts --serve).
+# Ne pas copier tel quel : `tap/install-usage-shim.sh` remplace @NODE@, @APP_DIR@, @UPSTREAM@ et @PORT@.
+# Le service ne détient aucun secret : la clé API reste chez le client et ne fait que traverser.
+[Unit]
+Description=Claude usage shim — relais local qui répare les compteurs de tokens d'un proxy Anthropic
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=@APP_DIR@
+ExecStart=@NODE@ tap/usage-shim.ts --serve --host 127.0.0.1 --port @PORT@ --upstream @UPSTREAM@
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=default.target

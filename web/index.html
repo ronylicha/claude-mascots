@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Claude Mascots</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <h1>Claude Mascots</h1>
+      </div>
+      <dl class="totals" aria-label="Totaux">
+        <div><dt>Sessions</dt><dd id="total-sessions">–</dd></div>
+        <div><dt>Au travail</dt><dd id="total-working">–</dd></div>
+        <div><dt>Tokens / min</dt><dd id="total-rate">–</dd></div>
+        <div><dt>Coût cumulé</dt><dd id="total-cost">–</dd></div>
+      </dl>
+      <p class="chip" id="device-chip" data-state="off">Carte USB : non connectée</p>
+    </header>
+
+    <p class="sr-only" id="announcer" role="status"></p>
+
+    <main>
+      <p class="empty" id="offline-state" hidden>Connexion au démon perdue, nouvelle tentative…</p>
+      <p class="empty" id="error-state" role="alert" hidden></p>
+
+      <div id="view-grid">
+        <section class="quota" aria-label="Quotas des comptes">
+          <section class="quota-group" id="quota-group-claude" data-provider="claude" aria-labelledby="quota-title-claude" hidden>
+            <h2 class="quota-group-title" id="quota-title-claude">Claude Code</h2>
+            <div class="quota-gauges">
+              <article class="gauge" id="gauge-claude-five-hour">
+                <header><h3 class="gauge-title">Énergie 5 h</h3><span class="gauge-value">–</span></header>
+                <div class="gauge-track" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Quota Claude Code sur 5 heures utilisé">
+                  <div class="gauge-fill"></div>
+                </div>
+                <p class="gauge-reset">–</p>
+              </article>
+              <article class="gauge" id="gauge-claude-seven-day">
+                <header><h3 class="gauge-title">Énergie semaine</h3><span class="gauge-value">–</span></header>
+                <div class="gauge-track" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Quota Claude Code sur 7 jours utilisé">
+                  <div class="gauge-fill"></div>
+                </div>
+                <p class="gauge-reset">–</p>
+              </article>
+            </div>
+            <p class="quota-source" id="quota-source-claude"></p>
+          </section>
+          <section class="quota-group" id="quota-group-codex" data-provider="codex" aria-labelledby="quota-title-codex" hidden>
+            <h2 class="quota-group-title" id="quota-title-codex">Codex</h2>
+            <div class="quota-gauges">
+              <article class="gauge" id="gauge-codex-five-hour">
+                <header><h3 class="gauge-title">Énergie 5 h</h3><span class="gauge-value">–</span></header>
+                <div class="gauge-track" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Quota Codex sur 5 heures utilisé">
+                  <div class="gauge-fill"></div>
+                </div>
+                <p class="gauge-reset">–</p>
+              </article>
+              <article class="gauge" id="gauge-codex-seven-day">
+                <header><h3 class="gauge-title">Énergie semaine</h3><span class="gauge-value">–</span></header>
+                <div class="gauge-track" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Quota Codex sur 7 jours utilisé">
+                  <div class="gauge-fill"></div>
+                </div>
+                <p class="gauge-reset">–</p>
+              </article>
+            </div>
+            <p class="quota-source" id="quota-source-codex"></p>
+          </section>
+        </section>
+
+        <h2 class="sr-only" id="troupe-title" tabindex="-1">Sessions actives</h2>
+        <p class="empty" id="empty-state" hidden>Aucune session active. Lancez <code>claude</code> ou <code>codex</code> dans un terminal : un personnage apparaîtra ici.</p>
+        <ul class="troupe" id="troupe" aria-labelledby="troupe-title"></ul>
+      </div>
+
+      <div id="view-detail" class="detail" hidden>
+        <nav class="detail-nav" aria-label="Retour à la grille">
+          <a class="back-link js-back" id="back-link" href="#/"><span aria-hidden="true">←</span> Retour</a>
+          <span class="detail-hint" aria-hidden="true">ou touche Échap</span>
+        </nav>
+
+        <p class="empty" data-field="loading" hidden>En attente des données de la session…</p>
+
+        <section class="panel gone" data-field="gone" aria-labelledby="gone-title" hidden>
+          <h2 id="gone-title" data-field="goneTitle" tabindex="-1">Session introuvable</h2>
+          <p data-field="goneMessage"></p>
+          <a class="back-link js-back" href="#/"><span aria-hidden="true">←</span> Retour aux chambres</a>
+        </section>
+
+        <article data-field="content" aria-labelledby="detail-title" hidden>
+          <header class="detail-head">
+            <div class="detail-heading">
+              <h2 id="detail-title" data-field="title" tabindex="-1"></h2>
+              <p class="detail-sub" data-field="subtitle"></p>
+            </div>
+            <p class="badges">
+              <span class="badge" data-field="activityBadge"></span>
+              <span class="badge" data-field="moodBadge"></span>
+            </p>
+          </header>
+
+          <div class="detail-hero">
+            <figure class="room-frame">
+              <div class="room-screen">
+                <canvas class="room-canvas" data-field="scene" role="img" width="64" height="40"></canvas>
+              </div>
+              <figcaption data-field="skyCaption"></figcaption>
+            </figure>
+
+            <div class="hero-side">
+              <section class="panel" aria-labelledby="h-state">
+                <h3 id="h-state">État</h3>
+                <dl class="facts">
+                  <div><dt>Activité</dt><dd data-field="activity"></dd></div>
+                  <div><dt>Statut brut</dt><dd><code data-field="status"></code></dd></div>
+                  <div><dt>Humeur</dt><dd data-field="mood"></dd></div>
+                </dl>
+                <p class="mood-cause" data-field="moodCause"></p>
+              </section>
+
+              <section class="panel" aria-labelledby="h-time">
+                <h3 id="h-time">Temps</h3>
+                <dl class="facts">
+                  <div><dt>Démarrage</dt><dd data-field="startedAt"></dd></div>
+                  <div><dt>Durée</dt><dd data-field="duration"></dd></div>
+                  <div><dt>Dernière activité</dt><dd data-field="lastActivity"></dd></div>
+                </dl>
+              </section>
+            </div>
+          </div>
+
+          <div class="detail-grid">
+            <section class="panel" aria-labelledby="h-identity">
+              <h3 id="h-identity">Identité</h3>
+              <dl class="facts">
+                <div><dt>Nom</dt><dd data-field="identName"></dd></div>
+                <div><dt>Outil</dt><dd data-field="identProvider"></dd></div>
+                <div><dt>Chemin</dt><dd class="path" data-field="identPath"></dd></div>
+                <div><dt>Session</dt><dd class="path" data-field="identSession"></dd></div>
+                <div><dt>Modèle</dt><dd data-field="identModel"></dd></div>
+                <div><dt>Version</dt><dd data-field="identVersion"></dd></div>
+                <div><dt>PID</dt><dd data-field="identPid"></dd></div>
+              </dl>
+            </section>
+
+            <section class="panel" aria-labelledby="h-context">
+              <h3 id="h-context">Contexte</h3>
+              <p class="big-number" data-field="contextValue"></p>
+              <div class="meter-track" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Contexte utilisé" data-field="contextMeter">
+                <div class="meter-fill" data-field="contextFill"></div>
+                <span class="meter-tick" aria-hidden="true" data-field="contextTickTired"></span>
+                <span class="meter-tick" aria-hidden="true" data-field="contextTickExhausted"></span>
+              </div>
+              <p class="note" data-field="contextTicksNote"></p>
+              <dl class="facts">
+                <div><dt>Fenêtre</dt><dd data-field="contextWindow"></dd></div>
+                <div><dt>Occupé</dt><dd data-field="contextUsed"></dd></div>
+                <div><dt>Restant</dt><dd data-field="contextFree"></dd></div>
+              </dl>
+            </section>
+
+            <section class="panel" aria-labelledby="h-cost">
+              <h3 id="h-cost">Coût et tours</h3>
+              <dl class="tiles">
+                <div class="tile"><dt>Coût</dt><dd data-field="cost"></dd></div>
+                <div class="tile"><dt>Tours</dt><dd data-field="turns"></dd></div>
+                <div class="tile"><dt>Coût / tour</dt><dd data-field="costPerTurn"></dd></div>
+                <div class="tile"><dt>Tokens / min</dt><dd data-field="rate"></dd></div>
+              </dl>
+            </section>
+
+            <section class="panel" aria-labelledby="h-tokens">
+              <h3 id="h-tokens">Tokens</h3>
+              <p class="big-number"><span data-field="tokenTotal"></span> <span class="unit">tokens au total</span></p>
+              <div class="stack" role="img" data-field="tokenBar"></div>
+              <ul class="legend" data-field="tokenLegend"></ul>
+              <p class="note" data-field="cacheRatio"></p>
+              <p class="note" role="status" data-field="usageWarning" hidden></p>
+            </section>
+
+            <section class="panel" aria-labelledby="h-tools">
+              <h3 id="h-tools">Appels par catégorie d'outil</h3>
+              <ul class="tools" data-field="toolsList"></ul>
+              <p class="note" data-field="toolsTotal"></p>
+              <p class="note">« Réflexion » compte les blocs de réflexion, pas des outils au sens strict.</p>
+            </section>
+
+            <section class="panel" aria-labelledby="h-recent">
+              <h3 id="h-recent">Outils récents</h3>
+              <p class="note" data-field="recentEmpty">Aucun outil utilisé pour l'instant.</p>
+              <ol class="recent" data-field="recentList"></ol>
+            </section>
+
+            <section class="panel panel-wide" aria-labelledby="h-chart">
+              <h3 id="h-chart">Débit : tokens par minute</h3>
+              <p class="note"><span data-field="chartWindow"></span>, entrée non cachée + sortie. Survolez une barre pour la valeur exacte.</p>
+              <div class="chart" data-field="chart"></div>
+              <dl class="facts facts-row">
+                <div><dt>Pic</dt><dd data-field="chartPeak"></dd></div>
+                <div><dt>Moyenne / min</dt><dd data-field="chartAverage"></dd></div>
+                <div><dt>Total sur la période</dt><dd data-field="chartSum"></dd></div>
+              </dl>
+            </section>
+
+            <section class="panel panel-wide" aria-labelledby="h-quota">
+              <h3 id="h-quota" data-field="quotaTitle">Quota du compte</h3>
+              <div class="quota-pair">
+                <article class="gauge" data-field="gaugeFiveHour">
+                  <header><h4 class="gauge-title">Énergie 5 h</h4><span class="gauge-value">–</span></header>
+                  <div class="gauge-track" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Quota sur 5 heures utilisé">
+                    <div class="gauge-fill"></div>
+                  </div>
+                  <p class="gauge-reset">–</p>
+                </article>
+                <article class="gauge" data-field="gaugeSevenDay">
+                  <header><h4 class="gauge-title">Énergie semaine</h4><span class="gauge-value">–</span></header>
+                  <div class="gauge-track" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Quota sur 7 jours utilisé">
+                    <div class="gauge-fill"></div>
+                  </div>
+                  <p class="gauge-reset">–</p>
+                </article>
+              </div>
+              <p class="note" data-field="quotaSource"></p>
+            </section>
+          </div>
+        </article>
+      </div>
+    </main>
+
+    <template id="card-template">
+      <li class="card">
+        <canvas class="scene" width="64" height="40" aria-hidden="true"></canvas>
+        <div class="card-body">
+          <div class="card-head">
+            <h3 class="card-name"><a class="card-link" href="#/"></a></h3>
+            <span class="badge card-mood"></span>
+          </div>
+          <div class="card-meta">
+            <span class="badge card-provider"></span>
+            <p class="card-project"></p>
+          </div>
+          <p class="card-activity"></p>
+          <div class="bar">
+            <span class="bar-label">Contexte</span>
+            <div class="bar-track" role="meter" aria-valuemin="0" aria-valuemax="100" aria-label="Contexte utilisé">
+              <div class="bar-fill"></div>
+            </div>
+            <span class="bar-value"></span>
+          </div>
+          <div class="card-rate">
+            <canvas class="spark" width="150" height="34" aria-hidden="true"></canvas>
+            <p class="card-rate-text"><strong class="stat-rate"></strong> tokens/min</p>
+          </div>
+          <span class="card-more" aria-hidden="true">Détails ▸</span>
+        </div>
+      </li>
+    </template>
+  </body>
+</html>

@@ -1,0 +1,48 @@
+{
+  "name": "claude-mascots",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Suivi visuel des sessions Claude Code et Codex (tokens, contexte, quota) sous forme de personnages en pixel art, sur navigateur et sur l'écran ESP32-2432S028.",
+  "license": "MIT",
+  "author": "Rony Licha",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ronylicha/claude-mascots.git"
+  },
+  "homepage": "https://github.com/ronylicha/claude-mascots#readme",
+  "bugs": {
+    "url": "https://github.com/ronylicha/claude-mascots/issues"
+  },
+  "keywords": [
+    "claude-code",
+    "codex",
+    "esp32",
+    "pixel-art",
+    "dashboard",
+    "tokens",
+    "sse",
+    "platformio"
+  ],
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "start": "node host/src/main.ts",
+    "test": "node --test host/test/*.test.ts",
+    "typecheck": "tsc --noEmit -p host/tsconfig.json",
+    "sprites": "node tools/gen-sprites-header.ts",
+    "sprites:check": "node tools/gen-sprites-header.ts --check",
+    "firmware:test": "pio test -d firmware -e native",
+    "firmware:build": "pio run -d firmware -e cyd",
+    "firmware:flash": "pio run -d firmware -e cyd -t upload",
+    "check": "pnpm typecheck && pnpm test && pnpm sprites:check && pnpm firmware:test",
+    "service:install": "bash tap/install-service.sh",
+    "shim:install": "bash tap/install-usage-shim.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "5.9.3"
+  }
+}

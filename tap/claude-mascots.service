@@ -1,0 +1,16 @@
+# Service systemd utilisateur : démarre le démon avec la session.
+# Ne pas copier tel quel : `tap/install-service.sh` remplace @NODE@ et @APP_DIR@.
+[Unit]
+Description=Claude Mascots — suivi visuel des sessions Claude Code
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=@APP_DIR@
+ExecStart=@NODE@ host/src/main.ts
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=default.target

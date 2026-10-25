@@ -1,0 +1,9 @@
+node_modules/
+firmware/.pio/
+firmware/.vscode/
+*.log
+.playwright-mcp/
+# Outils locaux de l'agent et notes de session : jamais versionnés.
+.serena/
+.remember/
+.claude/
